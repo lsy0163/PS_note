@@ -1,52 +1,49 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define MAX 100
-#define INF 99999999
+#define X first
+#define Y second
 
-vector<int> dijkstra(int start, int V, vector<pair<int, int> > adj[]) {
-  vector<int> dist(V, INF);  // 초기에 모두 INF로 초기화
-  priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > pq;
+int v, e, st;
 
-  dist[start] = 0;      // 시작하는 지점의 dist 0으로 설정
-  pq.push({0, start});  // 시작 정점 방문
-
-  while (!pq.empty()) {
-    int cost = pq.top().first;  // 방문 정점의 dist 값
-    int cur = pq.top().second;  // 방문 정점
-    pq.pop();
-
-    for (int i = 0; i < adj[cur].size(); i++) {
-      int next = adj[cur][i].first;           // 조사할 다음 정점
-      int ncost = cost + adj[cur][i].second;  // 조사할 정점의 cost
-      if (ncost < dist[next]) {
-        dist[next] = ncost;  // dist보다 cost가 더 작으면 갱신
-        pq.push({ncost, next});
-      }
-    }
-  }
-  return dist;
-}
+//{비용, 정점 번호}
+vector<pair<int, int> > adj[20005];
+const int INF = 0x3f3f3f3f;
+int d[20005];  // 최단 거리 테이블
 
 int main(void) {
-  int V, E;
-  vector<pair<int, int> > adj[MAX];
-
-  cout << "정점 개수 입력 : ";
-  cin >> V;
-  cout << "간선 개수 입력 : ";
-  cin >> E;
-
-  for (int i = 0; i < E; i++) {
-    int from, to, cost;
-    cout << "그래프 입력 [정점 정점 가중치] : ";
-    cin >> from >> to >> cost;
-    adj[from].push_back({to, cost});
-    adj[to].push_back({from, cost});
+  ios::sync_with_stdio(0);
+  cin.tie(0);
+  cin >> v >> e >> st;
+  fill(d, d + v + 1, INF);  // 1번 인덱스부터 사용하기 위해서
+  while (e--) {
+    int u, v, w;
+    cin >> u >> v >> w;
+    adj[u].push_back({w, v});
   }
 
-  vector<int> dist = dijkstra(0, V, adj);
-  for (int i = 0; i < V; i++) {
-    cout << "0번 정점에서 " << i << "번 정점까지 최단거리 : " << dist[i] << "\n";
+  priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> > > pq;
+  d[st] = 0;
+  // 우선순위 큐에 (0, 시작점) 추가 -> 시작점의 const는 0으로 고정
+  pq.push({d[st], st});
+  while (!pq.empty()) {
+    auto cur = pq.top();  // {비용, 정점}
+    pq.pop();
+    // 거리(비용)가 d에 있는 값과 다를 경우 discard
+    if (d[cur.Y] != cur.X) continue;
+    for (auto nxt : adj[cur.Y]) {
+      if (d[nxt.Y] <= d[cur.Y] + nxt.X) continue;
+      // cur를 거쳐가는 것이 더 작은 값을 갖는 경우
+      // d[nxt.Y] 갱신하고 우선순위 큐에 (비용, nxt.Y) 추가
+      d[nxt.Y] = d[cur.Y] + nxt.X;
+      pq.push({d[nxt.Y], nxt.Y});
+    }
+  }
+
+  for (int i = 1; i <= v; i++) {
+    if (d[i] == INF)
+      cout << "INF\n";
+    else
+      cout << d[i] << "\n";
   }
 }
