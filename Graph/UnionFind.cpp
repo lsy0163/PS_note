@@ -12,7 +12,7 @@ int getParent(int parent[], int x) {
 void unionParent(int parent[], int a, int b) {
   a = getParent(parent, a);
   b = getParent(parent, b);
-  if (a < b)
+  if (a < b)  // 최상단 루트 노드를 더 작은 값으로 유지함.
     parent[b] = a;
   else
     parent[a] = b;
